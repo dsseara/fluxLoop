@@ -1,3 +1,5 @@
+function [curlNormed, curlHistActive, curlHistCtrl] = bootStrappingLoop(activeScore, ctrlScore, dt, cutoff, plotbox, m, nbinArray, stdArray)
+
 % Vary the bin size and see if that affects the total curl found.
 dt = 5;
 cutoff = [];
@@ -8,7 +10,7 @@ nbinArray = [1:10].*5;
 dbinArray = zeros(size(nbinArray));
 stdArray = [1,2,3];
 
-activeTSeries = activScore;
+activeTSeries = activeScore;
 ctrlTSeries = ctrlScore;
 
 curlNormed = zeros(numel(dbinArray),numel(stdArray)+1,2);

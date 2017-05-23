@@ -106,26 +106,8 @@ end
 
 %%
 % Start the bootstrapping procedure
-% First, let's work with a dbin of 0.0045, found by inspecting the images
-% produced above and integrate out over 1std away from the mean in both directions
-dbin = 0.0045;
-nstd = 1;
-dt = 5;
-cutoff = [];
+% bootStrappingLoop.m varies the bin size and area over which the
+% curl is integrated in order to find out what parameter set gives
+% us a statistically significant circulation in the curl
 
-m = 1000; % number of trajectories to analyze
-netcurl = zeros(m,1);
-[probMat,fluxField,xEdges,yEdges] = probabilityFlux(score(:,1:2),dt,dbin,cutoff);
-counter = 1;
-plotbox = 0;
-netcurl(counter) = JFilamentFluxLoop(score(:,1:2),probMat,fluxField,...
-	xEdges,yEdges,nstd,plotbox,dbin);
-tic
-while counter <= m
-	counter = counter + 1;
-	newScore = bootStrap(score(:,1:2));
-	[newProbMat,newFluxField,~,~] = probabilityFlux(newScore,dt,dbin,cutoff);
-	netcurl(counter) = JFilamentFluxLoop(newScore,newProbMat,newFluxField,...
-		xEdges,yEdges,nstd,plotbox,dbin);
-end
-toc
+run bootStrappingLoop
