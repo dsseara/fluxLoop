@@ -7,7 +7,7 @@
 %           nmax  : max number of modes to use
 %           bcs   : boundary conditions for the mode (right now, only use free ends)
 %
-% OUTPUT    a     : 1:nmax vector with the coefficients
+% OUTPUT    a     : (nmax)x1 vector with the coefficients
 
 function a = elastohydroModes(theta, ds, L, nmax, bcs)
 
@@ -19,22 +19,25 @@ function a = elastohydroModes(theta, ds, L, nmax, bcs)
     a = zeros(nmax,1);
     for n = 1:2:nmax
         phi = oddModes(n,L,s);
+        %keyboard
         a(n) = -trapz(ds, phi.*theta);
     end
     for n = 2:2:nmax
         phi = evenModes(n,L,s);
         a(n) = -trapz(ds, phi.*theta);
     end
+end
 
 function k = waveVec(n)
     k = (n+1/2)*pi;
-
+end
 
 function phi = oddModes(n,L,s)
     k = waveVec(n);
     phi =  L^(1/2)/k .* (cos((k/L) .* s)./cos(k/2) + cosh((k/L) .* s)./cosh(k/2));
-
+end
 
 function phi = evenModes(n,L,s)
     k = waveVec(n);
     phi =  L^(1/2)/k .* (sin((k/L) .* s)./sin(k/2) + sinh((k/L) .* s)./sinh(k/2));
+end

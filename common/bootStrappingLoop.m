@@ -1,21 +1,14 @@
-function [curlNormed, curlHistActive, curlHistCtrl] = bootStrappingLoop(activeScore, ctrlScore, dt, cutoff, plotbox, m, nbinArray, stdArray)
+function [curlNormed, curlHistActive, curlHistCtrl, dbinArray] =...
+    bootStrappingLoop(activeScore, ctrlScore, dt, cutoff, plotbox,...
+    m, nbinArray, stdArray, plotstuff)
 
-% Vary the bin size and see if that affects the total curl found.
-dt = 5;
-cutoff = [];
-plotbox = 0;
-m=500;
-
-nbinArray = [1:10].*5;
-dbinArray = zeros(size(nbinArray));
-stdArray = [1,2,3];
 
 activeTSeries = activeScore;
 ctrlTSeries = ctrlScore;
 
-curlNormed = zeros(numel(dbinArray),numel(stdArray)+1,2);
-curlHistActive = zeros(numel(dbinArray), numel(stdArray)+1,m);
-curlHistCtrl   = zeros(numel(dbinArray), numel(stdArray)+1,m);
+curlNormed = zeros(numel(nbinArray),numel(stdArray)+1,2);
+curlHistActive = zeros(numel(nbinArray), numel(stdArray)+1,m);
+curlHistCtrl   = zeros(numel(nbinArray), numel(stdArray)+1,m);
 
 rng(1);
 for ii =1:numel(nbinArray)
@@ -42,22 +35,24 @@ for ii =1:numel(nbinArray)
             [activeprobMat,activefluxField,activexEdges,activeyEdges] = ...
                     probabilityFlux(newActiveTSeries,dt,dbin,cutoff);
                 
-            tempCurl.active(counter) = JFilamentFluxLoop(newActiveTSeries,...
+            tempCurl.active(counter) = fluxLoopCurl(newActiveTSeries,...
                     activeprobMat,activefluxField,activexEdges,activeyEdges,...
                     nstd, plotbox, dbin);
 
             [ctrlprobMat,ctrlfluxField,ctrlxEdges,ctrlyEdges] = ...
                     probabilityFlux(newCtrlTSeries,dt,dbin,cutoff);
                 
-            tempCurl.ctrl(counter) = JFilamentFluxLoop(newCtrlTSeries,...
+            tempCurl.ctrl(counter) = fluxLoopCurl(newCtrlTSeries,...
                     ctrlprobMat,ctrlfluxField,ctrlxEdges,ctrlyEdges,...
                     nstd, plotbox, dbin);
         end
         toc
         
-        [t{ii,jj},n{ii,jj},x{ii,jj}] = nhist(tempCurl);
-        title(['dbin=',num2str(dbin),' nstd=',num2str(jj)])
-        
+        if plotstuff
+            [t{ii,jj},n{ii,jj},x{ii,jj}] = nhist(tempCurl);
+            title(['dbin=',num2str(dbin),' nstd=',num2str(jj)])
+        end
+
         curlHistActive(ii,jj,:) = tempCurl.active;
         curlHistCtrl(ii,jj,:)   = tempCurl.ctrl;
         curlNormed(ii,jj,1) = mean(tempCurl.active)./std(tempCurl.active);

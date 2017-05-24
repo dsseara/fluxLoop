@@ -21,7 +21,7 @@
 % 					    in a single row
 %
 % Created by Daniel Seara, 05/10/2017
-function aa = getJFilamentModes(filament,nmax,bcs,maxFrame,px2um,savestuff,folder)
+function aa = getJFilamentModes(filament,nmax,bcs,maxFrame,px2um,savestuff,folder, frameRate)
 	aa = [];
 	colors = colormap(parula(maxFrame));
 	close all;
@@ -46,19 +46,27 @@ function aa = getJFilamentModes(filament,nmax,bcs,maxFrame,px2um,savestuff,folde
 	        ds = sqrt(displacements(1,:).^2 + displacements(2,:).^2);
 	        L = sum(ds);
 	        positions = -L/2:(L/(npoints-2)):L/2;
-	        tangents = atan2(displacements(2,:), displacements(1,:));
-	        elastoCoeffs = elastohydroModes(tangents, ds, L, nmax, bcs);
+	        % minus sign because of flip in y-axis between image and plot
+	        tangents = -atan2(displacements(2,:), displacements(1,:));
+	        elastoCoeffs = elastohydroModes(tangents, cumsum(ds), L, nmax, bcs);
 	        aa = [aa; elastoCoeffs'];
-
-	        subplot(2,1,1), hold on;
-	        plot(xy(1,:)-L/2,xy(2,:),'Color', colors(jj,:))
-	        subplot(2,1,2), hold on;
-	        plot(positions, tangents,'Color', colors(jj,:))
+	        if mod(jj,frameRate)==0
+		        subplot(2,1,1), hold on;
+		        plot(xy(1,:)-L/2,xy(2,:),'Color', colors(jj,:))
+		        subplot(2,1,2), hold on;
+		        plot(positions, tangents,'Color', colors(jj,:))
+			end
 		end % End loop over frames
+	    
 	    subplot(2,1,1)
+	    axis equal
 	    xlabel('x (\mum)')
 	    ylabel('y (\mum)')
+	    llmFig('axis_square',0,'plw',1.5,'font','Helvetica')
+	    set(gca,'YDir','reverse','xtick',[],'ytick',[])
+	    
 	    subplot(2,1,2)
+	    axis equal
 	    xlabel('arc length (\mum)')
 	    ylabel('rad')
 

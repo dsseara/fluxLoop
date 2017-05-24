@@ -21,7 +21,7 @@
 % Created by Daniel Seara, 05/11/2017
 
 
-function netcurl = JFilamentFluxLoop(tseries, probMat,fluxField,xEdges,...
+function netcurl = fluxLoopCurl(tseries, probMat,fluxField,xEdges,...
     yEdges, nstd, plotbox, dbin)
 	% if nstd = [], find total curl over entire region
 	if isempty(nstd)
@@ -33,14 +33,16 @@ function netcurl = JFilamentFluxLoop(tseries, probMat,fluxField,xEdges,...
 		stdY = std(tseries(:,2));
 		meanY = mean(tseries(:,2));
 
-		insideX = xEdges>meanX-nstd*(stdX) & xEdges<meanX+nstd*(stdX);
-		insideY = yEdges>meanY-nstd*(stdY) & yEdges<meanY+nstd*(stdY);
+		insideX = xEdges(1:end-1)>meanX-nstd*(stdX) &...
+                  xEdges(1:end-1)<meanX+nstd*(stdX);
+		insideY = yEdges(1:end-1)>meanY-nstd*(stdY) &...
+                  yEdges(1:end-1)<meanY+nstd*(stdY);
 
 		if sum(insideX)<2 || sum(insideY)<2
 			netcurl = 0;
 			return
-		end
-
+        end
+        %keyboard
 		netcurl = dbin.^2.*sum(sum(curl(xEdges(insideX), yEdges(insideY),...
 			 		  fluxField(find(insideY),find(insideX),1),...
 			 		  fluxField(find(insideY), find(insideX),2))));

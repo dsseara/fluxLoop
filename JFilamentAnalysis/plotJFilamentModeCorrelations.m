@@ -22,7 +22,8 @@ function plotJFilamentModeCorrelations(aa,savestuff, folder)
 			scatter(aa(:,ii),aa(:,jj))
 			xlabel(['Mode ', num2str(ii)])
 			ylabel(['Mode ', num2str(jj)])
-
+            axis equal
+            
 			if savestuff
 				if ~exist([folder filesep 'modes'],'dir')
 	    			mkdir([folder filesep 'modes']);
