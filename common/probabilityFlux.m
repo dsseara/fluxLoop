@@ -56,14 +56,13 @@ function [probMap, fluxField,xEdges,yEdges] = probabilityFlux(tseries, dt, dbin,
     % Find all the transitions that happen
     % Transitions matrix will be nbins^2 long, so each state in the 2d state
     % is described by its linear index. The transition matrix has elements
-    % t(i,j), which is a transition FROM STATE I TO STATE J
+    % t(i,j), which is a transition FROM state i TO state j
 
     transitions = zeros(nbinx*nbiny);
 
     % Initialize memory for outputs
     probMap = zeros(nbiny,nbinx);
     fluxField = zeros(nbiny, nbinx, 2);
-
 
     for jj = 2:n
         % Get prior state

@@ -30,7 +30,7 @@ function [curlNormed, curlHistActive, curlHistCtrl, dbinArray] =...
             else
                 nstd = stdArray(jj);
             end
-            
+
             tempCurl.active = nan(m,1);
             tempCurl.ctrl = nan(m,1);
 
@@ -58,15 +58,8 @@ function [curlNormed, curlHistActive, curlHistCtrl, dbinArray] =...
 
             if plotstuff
                 [t{ii,jj},n{ii,jj},x{ii,jj}] = nhist(tempCurl);
-                xlabel('\Omega')
-                ylabel('pdf')
-                title(['dbin=',num2str(dbin),'integrate all space']);
-                
-                dbinStr = strrep(num2str(dbin),'.',','); % Can't have period in filename
-                
-                saveas(gcf, [savefolder '/fig/dbin_' dbinStr], 'fig');
-                saveas(gcf, [savefolder '/eps/dbin_' dbinStr], 'epsc');
-                saveas(gcf, [savefolder '/tif/dbin_' dbinStr], 'tif');
+                title(['dbin=',num2str(dbin),' nstd=',num2str(jj)])
+                saveas(gcf, '
             end
 
             curlHistActive(ii,jj,:) = tempCurl.active;

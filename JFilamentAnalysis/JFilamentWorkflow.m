@@ -4,8 +4,8 @@
 % First load the data you want. Will have to manually
 % enter save folder name and table name
 
-folder = '/media/daniel/storage1/Dropbox/LLM_Danny/FactinOrder/JFilament/ctrl';
-snakes = ctrlsnakes;
+folder = '/media/daniel/storage1/Dropbox/LLM_Danny/FactinOrder/JFilament/011712_2pt0uMact_phall_nta_fresh_nochol_mc_5ulRED/adding6pt2ulofunspunskmuscmyo_5s';
+snakes = snakes560;
 
 %% 
 % Parse table of data into a cell array
@@ -30,9 +30,9 @@ plotJFilamentData(filament, px2um,maxFrame, savestuff, folder,n);
 px2um= .108; % 0.108 microns per pixel
 bcs = 'free';   % Use free boundary conditions
 nmax = 6;       % get the first 6 modes
-savestuff = 1;  % Save the plots?
-n = 3; % plot every nth frame
-aa = getJFilamentModes(filament,nmax,bcs,maxFrame,px2um,savestuff,folder,n);
+savestuff = 0;  % Save the plots?
+n = 1000; % plot every nth frame
+[aa,aaEachFilament] = getJFilamentModes(filament,nmax,bcs,maxFrame,px2um,savestuff,folder,n);
 
 %%
 % See how the modes correlate with each other, expect all the even
@@ -77,10 +77,10 @@ end
 dt = 5;
 cutoff = [];
 
-axis1 = 5;
-axis2 = 6;
+axis1 = 1;
+axis2 = 2;
 
-nbinArray = [1:10].*2;
+nbinArray = [1:10].*5;
 dbinArray = zeros(size(nbinArray));
 stdArray = [1,2,3];
 
@@ -107,13 +107,13 @@ for ii =1:numel(nbinArray)
 			curlArray(ii,jj) =...
                 fluxLoopCurl([aa(:,axis1),aa(:,axis2)], probMat,fluxField,...
                 xEdges,yEdges, nstd, plotbox, dbin);
-             saveas(gcf,['varyBinSize/dbin_',strrep(num2str(dbin),'.',',')],'fig')
-             saveas(gcf,['varyBinSize/dbin_',strrep(num2str(dbin),'.',',')],'tif')
-             saveas(gcf,['varyBinSize/dbin_',strrep(num2str(dbin),'.',',')],'epsc')
+%              saveas(gcf,['varyBinSize/dbin_',strrep(num2str(dbin),'.',',')],'fig')
+%              saveas(gcf,['varyBinSize/dbin_',strrep(num2str(dbin),'.',',')],'tif')
+%              saveas(gcf,['varyBinSize/dbin_',strrep(num2str(dbin),'.',',')],'epsc')
         else
 			[probMat,fluxField,xEdges,yEdges] =...
                 probabilityFlux([aa(:,axis1),aa(:,axis2)],dt,dbin,cutoff);
-			plotbox = 0;
+			plotbox = 1;
 			nstd = stdArray(jj);
 			curlArray(ii,jj) = ...
                 fluxLoopCurl([aa(:,axis1),aa(:,axis2)], probMat,fluxField,...
@@ -132,28 +132,56 @@ end
 % curl is integrated in order to find out what parameter set gives
 % us a statistically significant circulation in the curl
 
-axis1 = 5;
-axis2 = 6;
-
 ctrlfolder =...
     '/media/daniel/storage1/Dropbox/LLM_Danny/FactinOrder/JFilament/ctrl';
 activefolder =...
     '/media/daniel/storage1/Dropbox/LLM_Danny/FactinOrder/JFilament/active';
-load([ctrlfolder filesep,'ctrlData.mat'])
-ctrlTseries = [aa(:,axis1),aa(:,axis2)];
-load([activefolder filesep,'activeData.mat'])
-activeTseries = [aa(:,axis1),aa(:,axis2)];
-% Vary the bin size and see if that affects the total curl found.
+
 dt = 5;
 cutoff = [];
 plotstuff = 1;
-m=500;
-
-nbinArray = [1:10].*2; % Array of number of bins to change bin size
+m=500; % number of bootstrapped trajectories generated
+nbinArray = [1:10].*5; % Array of number of bins to change bin size
 dbinArray = zeros(size(nbinArray)); % array to keep 
-stdArray = [1,2,3]; % number of stds to integrate over also does the entire
-					% domain in addition to these
+stdArray = []; % number of stds to integrate over also does the entire
+               % domain in addition to these
+plotbox = 0;
 
-[curlNormed, curlHistActive, curlHistCtrl] =...
-    bootStrappingLoop(activeTseries, ctrlTseries, dt, cutoff, plotbox, m,...
-    nbinArray, stdArray,plotstuff);
+for ii = 1:6
+    for jj = ii+1:6
+        axis1 = ii;
+        axis2 = jj;
+        
+        % Don't do the mode combinations that have already been done
+        if axis1==1 && axis2==2
+            continue
+        elseif axis1==2 && axis2==6
+            continue
+        elseif axis1==5 && axis2==6
+            continue
+        end
+        
+        modeDir = ['/media/daniel/storage1/Dropbox/LLM_Danny/FactinOrder/JFilament/bootStrap/modes_',...
+            num2str(axis1), num2str(axis2)];
+        mkdir(modeDir);
+        mkdir([modeDir '/histograms']);
+        mkdir([modeDir '/histograms/tif']);
+        mkdir([modeDir '/histograms/eps']);
+        mkdir([modeDir '/histograms/fig']);
+        
+        savefolder = [modeDir '/histograms'];
+        
+        load([ctrlfolder filesep,'ctrlData.mat'])
+        ctrlTseries = [aa(:,axis1),aa(:,axis2)];
+        load([activefolder filesep,'activeData.mat'])
+        activeTseries = [aa(:,axis1),aa(:,axis2)];
+       
+        [curlNormed, curlHistActive, curlHistCtrl, dbinArray] =...
+            bootStrappingLoop(activeTseries, ctrlTseries, dt, cutoff, plotbox, m,...
+            nbinArray, stdArray,plotstuff, savefolder);
+        
+        save(savefolder, 'bootstrapData.mat',...
+            {'activeTseries', 'ctrlTseries', 'curlHistActive',...
+            'curlHistCtrl', 'curlNormed', 'dbinArray'})
+    end
+end

@@ -21,11 +21,12 @@
 % 					    in a single row
 %
 % Created by Daniel Seara, 05/10/2017
-function aa = getJFilamentModes(filament,nmax,bcs,maxFrame,px2um,savestuff,folder, frameRate)
-	aa = [];
+function [aaAll, aaEachFilament] = getJFilamentModes(filament,nmax,bcs,maxFrame,px2um,savestuff,folder, frameRate)
+    aaAll = [];
 	colors = colormap(parula(maxFrame));
 	close all;
 	for ii = 1:numel(filament) 
+        aa = [];
 		filaData = filament{ii};
 		frames = unique(filaData(:,1));
 		figure;
@@ -57,7 +58,9 @@ function aa = getJFilamentModes(filament,nmax,bcs,maxFrame,px2um,savestuff,folde
 		        plot(positions, tangents,'Color', colors(jj,:))
 			end
 		end % End loop over frames
-	    
+	    aaAll = [aaAll;aa];
+        aaEachFilament{ii} = aa;
+        
 	    subplot(2,1,1)
 	    axis equal
 	    xlabel('x (\mum)')
