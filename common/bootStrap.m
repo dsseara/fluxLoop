@@ -1,14 +1,14 @@
-% function output = transitionTimeSeries(tseries,dt,xEdges, yEdges)
+% function newTSeries = bootStrap(tseries)
 % This function creates an Nx3 matrix that gives the transition data
 % so that we can bootstrap another trajectory out of these data
 % while still maintaining the temporal relationship between the transitions
 %
 % INPUTS
-%            tseries : The 2D time series being investigated
+%            tseries : Nx2 time series being investigated
 %
 % OUTPUTS
-%             newTSeries : shuffled version of tseries where pairs of
-%                          rows are kept adjacent 
+%             newTSeries : new Nx2 time series sampled WITH REPLACEMENT from
+%                          tseries
 %
 % Created by Daniel Seara, 05/12/2017
 function newTSeries = bootStrap(tseries)
@@ -23,14 +23,22 @@ function newTSeries = bootStrap(tseries)
     if mod(size(tseries,1),2)
         tseries = tseries(1:end-1,:);
     end
+
+    newTSeries = zeros(size(tseries));
     
     n = size(tseries,1); % total number of time points
+    counter = 0;
 
-    % gives random rows from 2:2:size(tseries,1)
-    ordering = randperm(n/2).*2; 
-    % now interleave ordering with a vector that is just the odd neighbors of ordering
-    ordering = reshape([ordering-1;ordering],2*size(ordering,2),[]);
-    
-    newTSeries = tseries(ordering,:);
+    while counter<n/2-1
+        counter = counter + 1;
+
+        % Random row number between 1 and end-1 of tseries
+        randRow = ceil(rand*(n-1));
+
+        % Create newTSeries using sequential rows
+        newTSeries(counter, :)     = tseries(randRow, :);
+        newTSeries(counter + 1, :) = tseries(randRow + 1, :);
+    end
+
 
 end % end function
