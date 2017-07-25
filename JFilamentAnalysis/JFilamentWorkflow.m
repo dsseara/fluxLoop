@@ -147,19 +147,26 @@ stdArray = []; % number of stds to integrate over also does the entire
                % domain in addition to these
 plotbox = 0;
 
-for ii = 1:6
+load([ctrlfolder filesep,'ctrlData.mat'])
+aaCTRL = aa;
+
+load([activefolder filesep,'activeData.mat'])
+aaACTIVE = aa;
+
+parfor ii = 1:6
     for jj = ii+1:6
+        close all
         axis1 = ii;
         axis2 = jj;
         
-        % Don't do the mode combinations that have already been done
-        if axis1==1 && axis2==2
-            continue
-        elseif axis1==2 && axis2==6
-            continue
-        elseif axis1==5 && axis2==6
-            continue
-        end
+%         % Don't do the mode combinations that have already been done
+%         if axis1==1 && axis2==2
+%             continue
+%         elseif axis1==2 && axis2==6
+%             continue
+%         elseif axis1==5 && axis2==6
+%             continue
+%         end
         
         modeDir = ['/media/daniel/storage1/Dropbox/LLM_Danny/FactinOrder/JFilament/bootStrap/modes_',...
             num2str(axis1), num2str(axis2)];
@@ -171,17 +178,20 @@ for ii = 1:6
         
         savefolder = [modeDir '/histograms'];
         
-        load([ctrlfolder filesep,'ctrlData.mat'])
-        ctrlTseries = [aa(:,axis1),aa(:,axis2)];
-        load([activefolder filesep,'activeData.mat'])
-        activeTseries = [aa(:,axis1),aa(:,axis2)];
-       
+        ctrlTseries   = [aaCTRL(:,axis1)  , aaCTRL(:,axis2)];
+        activeTseries = [aaACTIVE(:,axis1), aaACTIVE(:,axis2)];
+        
         [curlNormed, curlHistActive, curlHistCtrl, dbinArray] =...
             bootStrappingLoop(activeTseries, ctrlTseries, dt, cutoff, plotbox, m,...
             nbinArray, stdArray,plotstuff, savefolder);
         
-        save(savefolder, 'bootstrapData.mat',...
-            {'activeTseries', 'ctrlTseries', 'curlHistActive',...
-            'curlHistCtrl', 'curlNormed', 'dbinArray'})
+        saveFile = matfile([modeDir '/bootstrapData.mat'],'writable',true)
+        
+        saveFile.activeTseries = activeTseries;
+        saveFile.ctrlTseries = ctrlTseries;
+        saveFile.curlHistActive = curlHistActive;
+        saveFile.curlHistCtrl = curlHistCtrl;
+        saveFile.curlNormed = curlNormed;
+        saveFile.dbinArray = dbinArray;
     end
 end
