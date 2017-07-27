@@ -22,7 +22,7 @@ function [curlNormed, curlHistActive, curlHistCtrl, dbinArray] =...
     for ii =1:numel(nbinArray)
         dbin = (max(activeTSeries(:,2)) - min(activeTSeries(:,2)))/nbinArray(ii);
         dbinArray(ii) = dbin;
-        for jj =  1:numel(stdArray)+1
+        for jj =  1:numel(stdArray)%+1
             counter = 0;
             figure
             if jj == numel(stdArray)+1
@@ -60,13 +60,13 @@ function [curlNormed, curlHistActive, curlHistCtrl, dbinArray] =...
                 [t{ii,jj},n{ii,jj},x{ii,jj}] = nhist(tempCurl);
                 xlabel('\Omega')
                 ylabel('pdf')
-                title(['dbin=',num2str(dbin),'integrate all space']);
+                title(['dbin=',num2str(dbin),', std=', num2str(nstd)]);
                 
                 dbinStr = strrep(num2str(dbin),'.',','); % Can't have period in filename
                 
-                saveas(gcf, [savefolder '/fig/dbin_' dbinStr], 'fig');
-                saveas(gcf, [savefolder '/eps/dbin_' dbinStr], 'epsc');
-                saveas(gcf, [savefolder '/tif/dbin_' dbinStr], 'tif');
+                saveas(gcf, [savefolder '/fig/dbin_' dbinStr '_nstd_' num2str(nstd)], 'fig');
+                saveas(gcf, [savefolder '/eps/dbin_' dbinStr '_nstd_' num2str(nstd)], 'epsc');
+                saveas(gcf, [savefolder '/tif/dbin_' dbinStr '_nstd_' num2str(nstd)], 'tif');
             end
 
             curlHistActive(ii,jj,:) = tempCurl.active;

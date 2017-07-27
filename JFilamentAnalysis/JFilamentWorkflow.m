@@ -143,7 +143,7 @@ plotstuff = 1;
 m=500; % number of bootstrapped trajectories generated
 nbinArray = [1:10].*5; % Array of number of bins to change bin size
 dbinArray = zeros(size(nbinArray)); % array to keep 
-stdArray = []; % number of stds to integrate over also does the entire
+stdArray = [1,2,3]; % number of stds to integrate over also does the entire
                % domain in addition to these
 plotbox = 0;
 
