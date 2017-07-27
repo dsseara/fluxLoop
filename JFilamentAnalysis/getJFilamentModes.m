@@ -6,9 +6,8 @@
 % into elastohydrodynamic modes of thin rods using elastohydroModes
 %
 % INPUTS	 
-%			 filament : Mx5 array filament positions over time, output of
-% 					    loadJFilamentData. Array structure:
-%						frame | segment # | x | y | all zeros (?)
+%			 filament : Array of filament tangent angles. Each row is a position
+%						along the arc length, each column is a time point
 % 			     nmax : Maximum number of modes to calculate for the filaments
 % 			      bcs : String of boundary conditions of the rods (use 'free')
 %			 maxFrame : The most frames a single filament can be tracked
@@ -17,70 +16,53 @@
 % 			   folder : String. If savestuff, then save them in this folder
 %
 % OUTPUTS		   aa : (N)x(nmax) array of the mode coefficients for every
-% 					    filament at every time point, each time point contained
-% 					    in a single row
+% 					    each time point contained in a single row
 %
-% Created by Daniel Seara, 05/10/2017
-function [aaAll, aaEachFilament] = getJFilamentModes(filament,nmax,bcs,maxFrame,px2um,savestuff,folder, frameRate)
-    aaAll = [];
+% This version is made for axoneme data from the following Dryad database:
+% http://datadryad.org/resource/doi:10.5061/dryad.0529j
+% 
+% For the following paper:
+%
+% Dynamic curvature regulation accounts for the symmetric and asymmetric beats of
+% Chlamydomonas flagella
+% Sartori P, Geyer VF, Scholich A, Jülicher F, Howard J
+% Date Published: May 12, 2016
+% DOI: http://dx.doi.org/10.5061/dryad.0529j
+%
+% Created by Daniel Seara, 07/27/2017
+function aa = getJFilamentModes(filament,nmax,bcs,maxFrame,px2um,savestuff,folder, frameRate)
+	
 	colors = colormap(parula(maxFrame));
 	close all;
-	for ii = 1:numel(filament) 
-        aa = [];
-		filaData = filament{ii};
-		frames = unique(filaData(:,1));
-		figure;
-		for jj = 1:numel(frames)
-			f = frames(jj);
-			xy = [filaData(filaData(:,1)==f,3)'.*px2um;...
-				  filaData(filaData(:,1)==f,4)'.*px2um];
-			npoints = size(xy,2);
-			if jj==1
-				theta = atan2(xy(2,end)-xy(2,1), xy(1,end)-xy(1,1));
-				% rotate clockwise by angle theta
-		    	R = [cos(theta), sin(theta);-sin(theta), cos(theta)];
-		    end % End if statement to get rotation angle
 
-		    % Rotate and subtract starting position
-	        xy = R*(xy - [xy(1,1).*ones(1,size(xy,2));xy(2,1).*ones(1,size(xy,2))]);
-	        displacements = diff(xy, 1,2); % take difference along columns
-	        ds = sqrt(displacements(1,:).^2 + displacements(2,:).^2);
-	        L = sum(ds);
-	        positions = -L/2:(L/(npoints-2)):L/2;
-	        % minus sign because of flip in y-axis between image and plot
-	        tangents = -atan2(displacements(2,:), displacements(1,:));
-	        elastoCoeffs = elastohydroModes(tangents, cumsum(ds), L, nmax, bcs);
-	        aa = [aa; elastoCoeffs'];
-	        if mod(jj,frameRate)==0
-		        subplot(2,1,1), hold on;
-		        plot(xy(1,:)-L/2,xy(2,:),'Color', colors(jj,:))
-		        subplot(2,1,2), hold on;
-		        plot(positions, tangents,'Color', colors(jj,:))
-			end
-		end % End loop over frames
-	    aaAll = [aaAll;aa];
-        aaEachFilament{ii} = aa;
-        
-	    subplot(2,1,1)
-	    axis equal
-	    xlabel('x (\mum)')
-	    ylabel('y (\mum)')
-	    llmFig('axis_square',0,'plw',1.5,'font','Helvetica')
-	    set(gca,'YDir','reverse','xtick',[],'ytick',[])
-	    
-	    subplot(2,1,2)
-	    axis equal
-	    xlabel('arc length (\mum)')
-	    ylabel('rad')
-
-	    if savestuff
-	    	if ~exist([folder filesep 'filaments'],'dir')
-	    		mkdir([folder filesep 'filaments']);
-	    	end
-
-			saveas(gcf,[folder '/filaments/filament',num2str(ii)],'fig')
-		    saveas(gcf,[folder '/filaments/filament',num2str(ii)],'tif')
-		    saveas(gcf,[folder '/filaments/filament',num2str(ii)],'epsc')
+    aa = [];
+	nframes = size(filament,2);
+	figure;
+	for jj = 1:nframes
+        tangents = filament(:,jj);
+        ds = ones(size(tangents))*px2um;
+        L = sum(ds);
+        % keyboard
+        elastoCoeffs = elastohydroModes(tangents', cumsum(ds)', L, nmax, bcs);
+        aa = [aa; elastoCoeffs'];
+        if mod(jj,frameRate)==0
+	        subplot(1,1,1), hold on;
+	        plot(cumsum(ds), tangents,'Color', colors(jj,:))
 		end
-	end % End loop over filaments
+	end % End loop over frames
+    
+    subplot(1,1,1)
+    axis equal
+    xlabel('arc length (\mum)')
+    ylabel('rad')
+
+    if savestuff
+    	if ~exist([folder filesep 'filaments'],'dir')
+    		mkdir([folder filesep 'filaments']);
+    	end
+
+		saveas(gcf,[folder '/filaments/filament',num2str(ii)],'fig')
+	    saveas(gcf,[folder '/filaments/filament',num2str(ii)],'tif')
+	    saveas(gcf,[folder '/filaments/filament',num2str(ii)],'epsc')
+	end
 end

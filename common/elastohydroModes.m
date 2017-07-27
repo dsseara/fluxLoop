@@ -19,7 +19,7 @@ function a = elastohydroModes(theta, ds, L, nmax, bcs)
     a = zeros(nmax,1);
     for n = 1:2:nmax
         phi = oddModes(n,L,s);
-        %keyboard
+        % keyboard
         a(n) = -trapz(ds, phi.*theta);
     end
     for n = 2:2:nmax
