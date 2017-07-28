@@ -8,7 +8,7 @@
 
 function [curlNormed, curlHist, dbinArray] =...
     bootStrappingLoop(tSeries, dt, cutoff, plotbox,...
-    m, nbinArray, stdArray, savefolder)
+    m, nbinArray, stdArray, savefolder, plotstuff)
 
 
     curlNormed = zeros(numel(nbinArray), numel(stdArray)+1,m);
@@ -35,7 +35,7 @@ function [curlNormed, curlHist, dbinArray] =...
                 newTSeries = bootStrap(tSeries);
 
                 [probMat,fluxField,xEdges,yEdges] = ...
-                        probabilityFlux(newActiveTSeries,dt,dbin,cutoff);
+                        probabilityFlux(newTSeries,dt,dbin,cutoff);
 
                 tempCurl(counter) = fluxLoopCurl(newTSeries,...
                         probMat,fluxField,xEdges,yEdges,...
@@ -43,8 +43,21 @@ function [curlNormed, curlHist, dbinArray] =...
             end
             toc
 
+            if plotstuff
+                [t{ii,jj},n{ii,jj},x{ii,jj}] = nhist(tempCurl);
+                xlabel('\Omega')
+                ylabel('pdf')
+                title(['dbin=',num2str(dbin),'integrate all space']);
+                
+                dbinStr = strrep(num2str(dbin),'.',','); % Can't have period in filename
+                
+                saveas(gcf, [savefolder '/fig/dbin_' dbinStr], 'fig');
+                saveas(gcf, [savefolder '/eps/dbin_' dbinStr], 'epsc');
+                saveas(gcf, [savefolder '/tif/dbin_' dbinStr], 'tif');
+            end
+
             curlHist(ii,jj, :) = tempCurl;
-            curlNormed(ii,jj, :) = tempCurl./std(tempCurl.active);
+            curlNormed(ii,jj, :) = tempCurl./std(tempCurl);
         end
 
     end

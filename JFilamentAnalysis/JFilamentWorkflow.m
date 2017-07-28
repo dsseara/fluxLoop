@@ -151,7 +151,7 @@ dt = 0.001;
 cutoff = [];
 plotstuff = 1;
 m=500; % number of bootstrapped trajectories generated
-nbinArray = [1:10].*5; % Array of number of bins to change bin size
+nbinArray = [1:2:10].*5; % Array of number of bins to change bin size
 dbinArray = zeros(size(nbinArray)); % array to keep 
 stdArray = []; % number of stds to integrate over also does the entire
                % domain in addition to these
@@ -187,15 +187,14 @@ parfor ii = 1:6
         
         [curlNormed, curlHist, dbinArray] =...
             bootStrappingLoop(tSeries, dt, cutoff, plotbox, m,...
-            nbinArray, stdArray,plotstuff, savefolder);
+            nbinArray, stdArray, savefolder, plotstuff);
         
-        saveFile = matfile([modeDir '/bootstrapData.mat'],'writable',true)
+        saveFile = matfile([modeDir filesep axonemeData '_bootstrapData.mat'],'writable',true)
         
-        saveFile.activeTseries = activeTseries;
-        saveFile.ctrlTseries = ctrlTseries;
-        saveFile.curlHistActive = curlHistActive;
-        saveFile.curlHistCtrl = curlHistCtrl;
+        saveFile.tSeries = tSeries;
+        saveFile.curlHist = curlHist;
         saveFile.curlNormed = curlNormed;
         saveFile.dbinArray = dbinArray;
+
     end
 end
