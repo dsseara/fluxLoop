@@ -22,7 +22,7 @@ function [curlNormed, curlHistActive, curlHistCtrl, dbinArray] =...
     for ii =1:numel(nbinArray)
         dbin = (max(activeTSeries(:,2)) - min(activeTSeries(:,2)))/nbinArray(ii);
         dbinArray(ii) = dbin;
-        for jj =  1:numel(stdArray)%+1
+        for jj =  1:numel(stdArray)+1
             counter = 0;
             figure
             if jj == numel(stdArray)+1

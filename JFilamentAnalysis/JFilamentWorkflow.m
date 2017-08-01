@@ -136,11 +136,13 @@ dt = 5;
 cutoff = [];
 plotstuff = 1;
 m=500; % number of bootstrapped trajectories generated
-nbinArray = [1:10].*5; % Array of number of bins to change bin size
+nbinArray = [1:2:10].*5; % Array of number of bins to change bin size
 dbinArray = zeros(size(nbinArray)); % array to keep 
 stdArray = []; % number of stds to integrate over also does the entire
                % domain in addition to these
 plotbox = 0;
+
+folder = '/media/daniel/storage1/local_LLM_Danny/fActinOrder/011712_2pt0uMact_phall_nta_fresh_nochol_mc_5ulRED/560';
 
 parfor ii = 1:size(aa,2)
     for jj = ii+1:size(aa,2)
