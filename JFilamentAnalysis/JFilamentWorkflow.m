@@ -132,29 +132,18 @@ end
 % curl is integrated in order to find out what parameter set gives
 % us a statistically significant circulation in the curl
 
-ctrlfolder =...
-    '/media/daniel/storage1/Dropbox/LLM_Danny/FactinOrder/JFilament/ctrl';
-activefolder =...
-    '/media/daniel/storage1/Dropbox/LLM_Danny/FactinOrder/JFilament/active';
-
 dt = 5;
 cutoff = [];
 plotstuff = 1;
 m=500; % number of bootstrapped trajectories generated
 nbinArray = [1:10].*5; % Array of number of bins to change bin size
 dbinArray = zeros(size(nbinArray)); % array to keep 
-stdArray = [1,2,3]; % number of stds to integrate over also does the entire
+stdArray = []; % number of stds to integrate over also does the entire
                % domain in addition to these
 plotbox = 0;
 
-load([ctrlfolder filesep,'ctrlData.mat'])
-aaCTRL = aa;
-
-load([activefolder filesep,'activeData.mat'])
-aaACTIVE = aa;
-
-parfor ii = 1:6
-    for jj = ii+1:6
+parfor ii = 1:size(aa,2)
+    for jj = ii+1:size(aa,2)
         close all
         axis1 = ii;
         axis2 = jj;
@@ -168,7 +157,7 @@ parfor ii = 1:6
 %             continue
 %         end
         
-        modeDir = ['/media/daniel/storage1/Dropbox/LLM_Danny/FactinOrder/JFilament/bootStrap/modes_',...
+        modeDir = [folder '/bootStrap/modes_',...
             num2str(axis1), num2str(axis2)];
         mkdir(modeDir);
         mkdir([modeDir '/histograms']);
@@ -178,20 +167,18 @@ parfor ii = 1:6
         
         savefolder = [modeDir '/histograms'];
         
-        ctrlTseries   = [aaCTRL(:,axis1)  , aaCTRL(:,axis2)];
-        activeTseries = [aaACTIVE(:,axis1), aaACTIVE(:,axis2)];
+        tSeries = [aa(:,axis1), aa(:,axis2)];
         
-        [curlNormed, curlHistActive, curlHistCtrl, dbinArray] =...
-            bootStrappingLoop(activeTseries, ctrlTseries, dt, cutoff, plotbox, m,...
-            nbinArray, stdArray,plotstuff, savefolder);
+        [curlNormed, curlHist, dbinArray] =...
+            bootStrappingLoop(tSeries, dt, cutoff, plotbox, m,...
+            nbinArray, stdArray, savefolder, plotstuff);
         
-        saveFile = matfile([modeDir '/bootstrapData.mat'],'writable',true)
+        saveFile = matfile([modeDir filesep axonemeData '_bootstrapData.mat'],'writable',true)
         
-        saveFile.activeTseries = activeTseries;
-        saveFile.ctrlTseries = ctrlTseries;
-        saveFile.curlHistActive = curlHistActive;
-        saveFile.curlHistCtrl = curlHistCtrl;
+        saveFile.tSeries = tSeries;
+        saveFile.curlHist = curlHist;
         saveFile.curlNormed = curlNormed;
         saveFile.dbinArray = dbinArray;
+
     end
 end
