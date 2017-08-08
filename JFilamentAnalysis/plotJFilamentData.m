@@ -22,12 +22,12 @@
 function plotJFilamentData(filament, px2um, maxFrame, savestuff, folder,frameRate)
 	colors = colormap(parula(maxFrame));
 	close all;
-	for ii = 3%1:numel(filament)
+	for ii = 1:numel(filament)
 		filaData = filament{ii};
 		frames = unique(filaData(:,1));
 		figure;
 		hold on;
-		for jj = 9%1:frameRate:numel(frames)
+		for jj = 1:frameRate:numel(frames)
 			f = frames(jj);
 			plot(filaData(filaData(:,1)==f,3).*px2um,...
 				 filaData(filaData(:,1)==f,4).*px2um,...

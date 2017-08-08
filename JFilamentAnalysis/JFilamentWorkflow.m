@@ -4,8 +4,8 @@
 % First load the data you want. Will have to manually
 % enter save folder name and table name
 
-folder = '/media/daniel/storage1/Dropbox/LLM_Danny/FactinOrder/JFilament/011712_2pt0uMact_phall_nta_fresh_nochol_mc_5ulRED/adding6pt2ulofunspunskmuscmyo_5s';
-snakes = snakes560;
+folder = pwd;
+snakes = snakes;
 
 %% 
 % Parse table of data into a cell array
@@ -15,11 +15,11 @@ filament = loadJFilamentData(snakes);
 % Let's plot up the filaments so we can take a look at them.
 
 px2um= .108; % 0.108 microns per pixel
-maxFrame = 75; % 75 is absolute max frame possible
+maxFrame = 31; % 75 is absolute max frame possible
 savestuff = 0; % boolean to save stuff or not
-n = 3; % plot every nth frame
+n = 2; % plot every nth frame
 
-plotJFilamentData(filament, px2um,maxFrame, savestuff, folder,n);
+plotJFilamentData(filament, px2um, maxFrame, savestuff, folder, n);
 
 %%
 % Now we rotate the filaments so they lie on a horizontal axis (defined as the
@@ -30,8 +30,8 @@ plotJFilamentData(filament, px2um,maxFrame, savestuff, folder,n);
 px2um= .108; % 0.108 microns per pixel
 bcs = 'free';   % Use free boundary conditions
 nmax = 6;       % get the first 6 modes
-savestuff = 0;  % Save the plots?
-n = 1000; % plot every nth frame
+savestuff = 1;  % Save the plots?
+n = 2; % plot every nth frame
 [aa,aaEachFilament] = getJFilamentModes(filament,nmax,bcs,maxFrame,px2um,savestuff,folder,n);
 
 %%
@@ -56,7 +56,7 @@ for ii=1:5
         axis2 = jj;
 
         dbin = (max(aa(:,axis2)) - min(aa(:,axis2)))/25;
-        dt = 5;
+        dt = 30;
 
         [probMat,fluxField,xEdges,yEdges] =...
             probabilityFlux([aa(:,axis1),aa(:,axis2)],dt,dbin,cutoff);
@@ -132,7 +132,7 @@ end
 % curl is integrated in order to find out what parameter set gives
 % us a statistically significant circulation in the curl
 
-dt = 5;
+dt = 30;
 cutoff = [];
 plotstuff = 1;
 m=500; % number of bootstrapped trajectories generated
@@ -142,7 +142,7 @@ stdArray = []; % number of stds to integrate over also does the entire
                % domain in addition to these
 plotbox = 0;
 
-folder = '/media/daniel/storage1/local_LLM_Danny/fActinOrder/011712_2pt0uMact_phall_nta_fresh_nochol_mc_5ulRED/560';
+%folder = '/media/daniel/storage1/local_LLM_Danny/fActinOrder/011712_2pt0uMact_phall_nta_fresh_nochol_mc_5ulRED/560';
 
 parfor ii = 1:size(aa,2)
     for jj = ii+1:size(aa,2)
@@ -175,7 +175,7 @@ parfor ii = 1:size(aa,2)
             bootStrappingLoop(tSeries, dt, cutoff, plotbox, m,...
             nbinArray, stdArray, savefolder, plotstuff);
         
-        saveFile = matfile([modeDir filesep axonemeData '_bootstrapData.mat'],'writable',true)
+        saveFile = matfile([modeDir filesep 'bootstrapData.mat'],'writable',true)
         
         saveFile.tSeries = tSeries;
         saveFile.curlHist = curlHist;
