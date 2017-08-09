@@ -44,7 +44,7 @@ function [curlNormed, curlHist, dbinArray] =...
             toc
 
             if plotstuff
-                [t{ii,jj},n{ii,jj},x{ii,jj}] = nhist(tempCurl);
+                [t{ii,jj},n{ii,jj},x{ii,jj}] = nhist(tempCurl,'pdf');
                 xlabel('\Omega')
                 ylabel('pdf')
                 title(['dbin=',num2str(dbin),'integrate all space']);
